@@ -1,7 +1,7 @@
 pipeline {
     agent any
     environment {
-        staging_server = "127.0.0.1:5500"  // Usando la porta predefinita per SSH
+        staging_server = "127.0.0.1:6379"  // Usando la porta predefinita per SSH
     }
     stages {
         stage('Clone Repository') {
