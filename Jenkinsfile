@@ -13,7 +13,7 @@ pipeline {
         stage('Deploy to Remote') {
             steps {
                 script {
-                    withCredentials([sshUserPrivateKey(credentialsId: 'your-credential-id', keyFileVariable: 'SSH_KEY')]) {
+                    withCredentials([sshUserPrivateKey(credentialsId: '04ca3865-4383-49d7-b66b-e47d3bab440f', keyFileVariable: 'SSH_KEY')]) {
                         echo "Deploying to ${staging_server}:${ssh_port}"
                         sh """
                             ssh -i $SSH_KEY -o StrictHostKeyChecking=no -p ${ssh_port} root@${staging_server} "echo Connection Successful"
