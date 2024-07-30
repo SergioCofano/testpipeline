@@ -14,7 +14,7 @@ pipeline {
                 script {
                     echo "Deploying to ${staging_server}"
                     sh '''
-                        ssh -o StrictHostKeyChecking=no root@127.0.0.1:5500 "echo Connection Successful"
+                        ssh -o StrictHostKeyChecking=no root@127.0.0.1:6379 "echo Connection Successful"
                         scp ${WORKSPACE}/* root@127.0.0.1:/Utenti/Utente/wa/testpipeline
                     '''
                 }
