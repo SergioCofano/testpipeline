@@ -1,8 +1,8 @@
 pipeline {
     agent any
     environment {
-        staging_server = "127.0.0.1"
-        ssh_port = "2222"
+        staging_server = "10.1.3.189"
+        ssh_port = "22"
     }
     stages {
         stage('Clone Repository') {
@@ -13,7 +13,8 @@ pipeline {
         stage('Deploy to Remote') {
             steps {
                 script {
-                    withCredentials([sshUserPrivateKey(credentialsId: '04ca3865-4383-49d7-b66b-e47d3bab440f', keyFileVariable: 'SSH_KEY')]) {
+                    // withCredentials([sshUserPrivateKey(credentialsId: '04ca3865-4383-49d7-b66b-e47d3bab440f', keyFileVariable: 'SSH_KEY')]) {
+                       withCredentials([usernamePassword(credentialsId: 'ServerTest', usernameVariable: 'utente' , passwordVariable: 'S3rv1z10.2024!')]) {
                         echo "Deploying to ${staging_server}:${ssh_port}"
                         sh '''
                             set -x
