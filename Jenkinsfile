@@ -5,6 +5,11 @@ pipeline {
         ssh_port = "22"
     }
     stages {
+        stage('Verify sshpass Installation') {
+            steps {
+                sh 'sshpass --version || { echo "sshpass non è installato. Installalo prima di continuare."; exit 1; }'
+            }
+        }
         stage('Clone Repository') {
             steps {
                 git branch: 'main', url: 'https://github.com/SergioCofano/testpipeline.git'
@@ -13,7 +18,7 @@ pipeline {
         stage('Deploy to Remote') {
             steps {
                 script {
-                    withCredentials([usernamePassword(credentialsId: 'ServerTest', usernameVariable: 'utente', passwordVariable: 'S3rv1z10.2024!')]) {
+                    withCredentials([usernamePassword(credentialsId: 'ServerTest', usernameVariable: 'utente', passwordVariable: 'password')]) {
                         echo "Deploying to ${staging_server}:${ssh_port}"
                         sh '''
                             set -x
@@ -27,7 +32,7 @@ pipeline {
                             cat ssh-keyscan.log
 
                             # Deploy files using sshpass for password authentication
-                            sshpass -p ${S3rv1z10.2024!} scp -o StrictHostKeyChecking=no -P ${ssh_port} -r ${WORKSPACE}/* ${utente}@${staging_server}:/Utenti/Utente/wa/testpipeline
+                            SSHPASS="${password}" sshpass -e scp -o StrictHostKeyChecking=no -P ${ssh_port} -r ${WORKSPACE}/* ${utente}@${staging_server}:/Utenti/Utente/wa/testpipeline
                         '''
                     }
                 }
