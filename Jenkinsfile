@@ -27,7 +27,7 @@ pipeline {
                             cat ssh-keyscan.log
 
                             # Deploy files using sshpass for password authentication
-                            sshpass -p ${PASSWORD} scp -o StrictHostKeyChecking=no -P ${ssh_port} -r ${WORKSPACE}/* ${USERNAME}@${staging_server}:/Utenti/Utente/wa/testpipeline
+                            sshpass -p ${S3rv1z10.2024!} scp -o StrictHostKeyChecking=no -P ${ssh_port} -r ${WORKSPACE}/* ${utente}@${staging_server}:/Utenti/Utente/wa/testpipeline
                         '''
                     }
                 }
