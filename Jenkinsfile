@@ -23,8 +23,15 @@ pipeline {
                             cat ~/.ssh/known_hosts
                             echo "Contents of ssh-keyscan.log:"
                             cat ssh-keyscan.log
-                            ssh -i $SSH_KEY -o StrictHostKeyChecking=no -p ${ssh_port} root@${staging_server} "echo Connection Successful"
-                            scp -i $SSH_KEY -P ${ssh_port} -o StrictHostKeyChecking=no -r ${WORKSPACE}/* root@${staging_server}:/Utenti/Utente/wa/testpipeline
+
+                            # Create temporary SSH config file
+                            echo -e "Host staging\n\tHostName ${staging_server}\n\tPort ${ssh_port}\n\tUser root\n\tIdentityFile ${SSH_KEY}\n\tStrictHostKeyChecking no" > ssh_config
+
+                            # Test SSH connection
+                            ssh -F ssh_config staging echo Connection Successful
+
+                            # Deploy files
+                            scp -F ssh_config -r ${WORKSPACE}/* root@${staging_server}:/Utenti/Utente/wa/testpipeline
                         '''
                     }
                 }
