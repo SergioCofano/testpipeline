@@ -18,8 +18,11 @@ pipeline {
                         sh '''
                             set -x
                             mkdir -p ~/.ssh
-                            ssh-keyscan -p ${ssh_port} ${staging_server} >> ~/.ssh/known_hosts
+                            ssh-keyscan -p ${ssh_port} ${staging_server} 2>&1 | tee ssh-keyscan.log >> ~/.ssh/known_hosts
+                            echo "Contents of ~/.ssh/known_hosts:"
                             cat ~/.ssh/known_hosts
+                            echo "Contents of ssh-keyscan.log:"
+                            cat ssh-keyscan.log
                             ssh -i $SSH_KEY -o StrictHostKeyChecking=no -p ${ssh_port} root@${staging_server} "echo Connection Successful"
                             scp -i $SSH_KEY -P ${ssh_port} -o StrictHostKeyChecking=no -r ${WORKSPACE}/* root@${staging_server}:/Utenti/Utente/wa/testpipeline
                         '''
