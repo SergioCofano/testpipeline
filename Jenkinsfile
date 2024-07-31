@@ -24,10 +24,15 @@ pipeline {
                             echo "Contents of ssh-keyscan.log:"
                             cat ssh-keyscan.log
 
-                            # Create temporary SSH config file
-                            echo -e "Host staging\n\tHostName ${staging_server}\n\tPort ${ssh_port}\n\tUser root\n\tIdentityFile ${SSH_KEY}\n\tStrictHostKeyChecking no" > ssh_config
+                            # Create temporary SSH config file without errors
+                            echo "Host staging
+                            HostName ${staging_server}
+                            Port ${ssh_port}
+                            User root
+                            IdentityFile ${SSH_KEY}
+                            StrictHostKeyChecking no" > ssh_config
 
-                            # Test SSH connection
+                            # Test SSH connection using the temporary config file
                             ssh -F ssh_config staging echo Connection Successful
 
                             # Deploy files
