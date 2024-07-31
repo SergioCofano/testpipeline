@@ -7,7 +7,7 @@ pipeline {
     stages {
         stage('Verify sshpass Installation') {
             steps {
-                sh 'sshpass --version || { echo "sshpass non è installato. Installalo prima di continuare."; exit 1; }'
+                sh 'sshpass -h || { echo "sshpass non è installato. Installalo prima di continuare."; exit 1; }'
             }
         }
         stage('Clone Repository') {
