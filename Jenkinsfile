@@ -18,7 +18,7 @@ pipeline {
         stage('Deploy to Remote') {
             steps {
                 script {
-                    withCredentials([usernamePassword(credentialsId: 'ServerTest', usernameVariable: 'utente', passwordVariable: 'password')]) {
+                    withCredentials([usernamePassword(credentialsId: 'ServerTest', usernameVariable: 'utente', passwordVariable: ' S3rv1z10.2024!')]) {
                         echo "Deploying to ${staging_server}:${ssh_port}"
                         sh '''
                             set -x
@@ -32,7 +32,7 @@ pipeline {
                             cat ssh-keyscan.log
 
                             # Deploy files using sshpass for password authentication
-                            SSHPASS="${password}" sshpass -e scp -o StrictHostKeyChecking=no -P ${ssh_port} -r ${WORKSPACE}/* ${utente}@${staging_server}:/Utenti/Utente/wa/testpipeline
+                            sshpass -p "${password}" scp -o StrictHostKeyChecking=no -P ${ssh_port} -r ${WORKSPACE}/* ${utente}@${staging_server}:/Utenti/Utente/wa/testpipeline
                         '''
                     }
                 }
