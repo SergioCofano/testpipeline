@@ -6,14 +6,19 @@ pipeline {
                 checkout scm
             }
         }
-        stage('Run Tests') {
+        stage('Install Dependencies') {
             steps {
                 script {
                     echo 'Installing dependencies...'
                     sh 'composer install'
+                }
+            }
+        }
+        stage('Run Tests') {
+            steps {
+                script {
                     echo 'Running tests...'
                     sh 'vendor/bin/phpunit --log-junit junit-report.xml'
-                    echo 'Tests completed.'
                 }
             }
         }
@@ -30,7 +35,7 @@ pipeline {
                         makeEmptyDirs: false,
                         noDefaultExcludes: false,
                         patternSeparator: '[, ]+',
-                        remoteDirectory: '/www/wwwroot/testrepo',
+                        remoteDirectory: '/var/www/html/',
                         remoteDirectorySDF: false,
                         removePrefix: '',
                         sourceFiles: '**/*.php'
