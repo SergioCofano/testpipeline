@@ -42,14 +42,44 @@
 // }
 
 
+// pipeline {
+//     agent any
+
+//     stages {
+//         stage('Deploy PHP application') {
+//             steps {
+//                 sshPublisher(publishers: [sshPublisherDesc(configName: 'php_server', transfers: [sshTransfer(cleanRemote: false, excludes: '', execCommand: '', execTimeout: 120000, flatten: false, makeEmptyDirs: false, noDefaultExcludes: false, patternSeparator: '[, ]+', remoteDirectory: '/www/wwwroot/testrepo', remoteDirectorySDF: false, removePrefix: '', sourceFiles: '**/*.php')], usePromotionTimestamp: false, useWorkspaceInPromotion: false, verbose: false)])
+//             }
+//         }
+//     }
+// }
+
 pipeline {
     agent any
 
     stages {
-        stage('Deploy PHP application') {
+        stage('Checkout') {
             steps {
-                sshPublisher(publishers: [sshPublisherDesc(configName: 'php_server', transfers: [sshTransfer(cleanRemote: false, excludes: '', execCommand: '', execTimeout: 120000, flatten: false, makeEmptyDirs: false, noDefaultExcludes: false, patternSeparator: '[, ]+', remoteDirectory: '/www/wwwroot/testrepo', remoteDirectorySDF: false, removePrefix: '', sourceFiles: '**/*.php')], usePromotionTimestamp: false, useWorkspaceInPromotion: false, verbose: false)])
+                git 'https://github.com/SergioCofano/testpipeline.git'
             }
+        }
+
+        stage('Install Dependencies') {
+            steps {
+                sh 'composer install'
+            }
+        }
+
+        stage('Run Tests') {
+            steps {
+                sh 'vendor/bin/phpunit --configuration phpunit.xml'
+            }
+        }
+    }
+
+    post {
+        always {
+            junit 'tests/_output/*.xml'
         }
     }
 }
