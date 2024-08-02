@@ -64,11 +64,11 @@ pipeline {
             }
         }
 
-        stage('Install Dependencies') {
-            steps {
-                sh 'composer install'
-            }
-        }
+        // stage('Install Dependencies') {
+        //     steps {
+        //         sh 'composer install'
+        //     }
+        // }
 
         stage('Run Tests') {
             steps {
