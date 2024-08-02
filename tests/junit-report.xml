@@ -1,14 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<phpunit colors="true"
-        convertErrorsToExceptions="true"
-        convertNoticesToExceptions="true"
-        convertWarningsToExceptions="true"
-        processIsolation="false"
-        stopOnFailure="false"
-        syntaxCheck="true">
-    <testsuites>
-        <testsuite name="Test suite">
-            <directory>.</directory>
-        </testsuite>
-    </testsuites>
+<phpunit bootstrap="vendor/autoload.php"
+         colors="true"
+         stopOnFailure="false">
+    <logging>
+        <log type="junit" target="tests/junit-report.xml"/>  <!-- Assicurati che il target sia corretto -->
+    </logging>
+    <!-- Altre configurazioni -->
 </phpunit>
