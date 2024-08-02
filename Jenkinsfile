@@ -9,10 +9,11 @@ pipeline {
         stage('Run Tests') {
             steps {
                 script {
-                    // Installa PHPUnit se necessario
+                    echo 'Installing dependencies...'
                     sh 'composer install'
-                    // Esegui i test
-                    sh 'vendor/bin/phpunit tests/GetGreetingTest.php'
+                    echo 'Running tests...'
+                    sh 'vendor/bin/phpunit --log-junit junit-report.xml'
+                    echo 'Tests completed.'
                 }
             }
         }
@@ -42,6 +43,10 @@ pipeline {
         }
     }
     post {
+        always {
+            echo 'Publishing test results...'
+            junit 'junit-report.xml'
+        }
         success {
             echo 'Deployment completed successfully.'
         }
