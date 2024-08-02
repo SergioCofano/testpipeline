@@ -35,7 +35,7 @@ pipeline {
                         makeEmptyDirs: false,
                         noDefaultExcludes: false,
                         patternSeparator: '[, ]+',
-                        remoteDirectory: '/var/www/html/',
+                        remoteDirectory: '/www/wwwroot/testrepo',
                         remoteDirectorySDF: false,
                         removePrefix: '',
                         sourceFiles: '**/*.php'
