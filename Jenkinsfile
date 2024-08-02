@@ -50,7 +50,7 @@ pipeline {
     post {
         always {
             echo 'Publishing test results...'
-            junit 'junit-report.xml'
+            junit '**/junit-report.xml'  // Assicurati che il percorso e il nome del report siano corretti
         }
         success {
             echo 'Deployment completed successfully.'
