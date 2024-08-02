@@ -18,7 +18,16 @@ pipeline {
             steps {
                 script {
                     echo 'Running tests...'
-                    sh 'vendor/bin/phpunit --log-junit junit-report.xml'
+                    sh 'vendor/bin/phpunit --log-junit tests/junit-report.xml'  // Aggiorna il percorso del report
+                }
+            }
+        }
+        stage('Debug Report') {
+            steps {
+                script {
+                    echo 'Debugging report...'
+                    sh 'ls -al tests'  // Mostra i file nella cartella tests per confermare la presenza del report
+                    sh 'cat tests/junit-report.xml'  // Mostra il contenuto del report XML per la verifica
                 }
             }
         }
@@ -50,7 +59,7 @@ pipeline {
     post {
         always {
             echo 'Publishing test results...'
-            junit '**/junit-report.xml'  // Assicurati che il percorso e il nome del report siano corretti
+            junit 'tests/junit-report.xml'  // Aggiorna il percorso del report
         }
         success {
             echo 'Deployment completed successfully.'
