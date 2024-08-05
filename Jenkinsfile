@@ -89,7 +89,7 @@ pipeline {
             steps {
                 sshagent(['php_server']) {
                     sh '''
-                        ssh -o StrictHostKeyChecking=no utente "cd /www/wwwroot/testrepo && composer install"
+                        ssh -o StrictHostKeyChecking=no utente@remote_host "cd /www/wwwroot/testrepo && composer install"
                     '''
                 }
             }
@@ -98,7 +98,7 @@ pipeline {
             steps {
                 sshagent(['php_server']) {
                     sh '''
-                        ssh -o StrictHostKeyChecking=no utente "
+                        ssh -o StrictHostKeyChecking=no utente@remote_host "
                         cd /www/wwwroot/testrepo &&
                         mkdir -p tests &&
                         vendor/bin/phpunit --log-junit tests/junit-report.xml --verbose &&
@@ -111,17 +111,16 @@ pipeline {
         }
         stage('Transfer Test Report') {
             steps {
-                // Se il report è già sulla macchina Jenkins
-                scp -o StrictHostKeyChecking=no utente "cd /www/wwwroot/testrepo/tests/junit-report.xml tests/"
-
-                // Altrimenti, usa un altro metodo per ottenere il report se necessario
+                sh '''
+                    scp -o StrictHostKeyChecking=no utente@remote_host:/www/wwwroot/testrepo/tests/junit-report.xml tests/
+                '''
             }
         }
         stage('Deploy PHP application') {
             steps {
                 sshagent(['php_server']) {
                     sh '''
-                        ssh -o StrictHostKeyChecking=no utente "cd /www/wwwroot/testrepo && rsync -avz --exclude='*.git' . /www/wwwroot/testrepo"
+                        ssh -o StrictHostKeyChecking=no utente@remote_host "cd /www/wwwroot/testrepo && rsync -avz --exclude='*.git' . /www/wwwroot/testrepo"
                     '''
                 }
             }
@@ -132,7 +131,7 @@ pipeline {
         always {
             script {
                 echo 'Publishing test results...'
-                junit '**/tests/junit-report.xml'  // Pubblica i risultati dei test
+                junit 'tests/junit-report.xml'  // Pubblica i risultati dei test
             }
         }
         success {
