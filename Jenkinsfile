@@ -1,3 +1,81 @@
+// pipeline {
+//     agent any
+//     stages {
+//         stage('Checkout') {
+//             steps {
+//                 checkout scm
+//             }
+//         }
+//         stage('Install Dependencies') {
+//             steps {
+//                 script {
+//                     echo 'Installing dependencies...'
+//                     sh 'composer install'
+//                 }
+//             }
+//         }
+//         stage('Run Tests') {
+//     steps {
+//         script {
+//             echo 'Running tests...'
+//             sh 'mkdir -p tests'  // Assicurati che la directory tests esista
+//             sh 'vendor/bin/phpunit --log-junit tests/junit-report.xml --verbose'  // Esegui PHPUnit con debug
+//             sh 'ls -al tests'  // Verifica la presenza del report XML
+//             sh 'cat tests/junit-report.xml || echo "Report file not found"'  // Mostra il contenuto del report XML
+//         }
+//     }
+// }
+
+//         stage('Debug Report') {
+//             steps {
+//                 script {
+//                     echo 'Debugging report...'
+//                     sh 'ls -al tests'  // Mostra i file nella directory tests
+//                     sh 'cat tests/junit-report.xml || echo "Report file not found"'  // Mostra il contenuto del report XML
+//                 }
+//             }
+//         }
+//         stage('Deploy PHP application') {
+//             steps {
+//                 sshPublisher(publishers: [sshPublisherDesc(
+//                     configName: 'php_server',
+//                     transfers: [sshTransfer(
+//                         cleanRemote: false,
+//                         excludes: '',
+//                         execCommand: '',
+//                         execTimeout: 120000,
+//                         flatten: false,
+//                         makeEmptyDirs: false,
+//                         noDefaultExcludes: false,
+//                         patternSeparator: '[, ]+',
+//                         remoteDirectory: '/www/wwwroot/testrepo',
+//                         remoteDirectorySDF: false,
+//                         removePrefix: '',
+//                         sourceFiles: '**/*.php'
+//                     )],
+//                     usePromotionTimestamp: false,
+//                     useWorkspaceInPromotion: false,
+//                     verbose: false
+//                 )])
+//             }
+//         }
+//     }
+//     post {
+//         always {
+//             script {
+//                 echo 'Publishing test results...'
+//                 junit 'tests/junit-report.xml'  // Pubblica i risultati dei test
+//             }
+//         }
+//         success {
+//             echo 'Deployment completed successfully.'
+//         }
+//         failure {
+//             echo 'Deployment failed.'
+//         }
+//     }
+// }
+
 pipeline {
     agent any
     stages {
@@ -8,31 +86,80 @@ pipeline {
         }
         stage('Install Dependencies') {
             steps {
-                script {
-                    echo 'Installing dependencies...'
-                    sh 'composer install'
-                }
+                sshPublisher(publishers: [sshPublisherDesc(
+                    configName: 'php_server',
+                    transfers: [sshTransfer(
+                        cleanRemote: false,
+                        excludes: '',
+                        execCommand: 'composer install',
+                        execTimeout: 120000,
+                        flatten: false,
+                        makeEmptyDirs: false,
+                        noDefaultExcludes: false,
+                        patternSeparator: '[, ]+',
+                        remoteDirectory: '/path/to/your/project',  // Cambia questo percorso se necessario
+                        remoteDirectorySDF: false,
+                        removePrefix: '',
+                        sourceFiles: ''
+                    )],
+                    usePromotionTimestamp: false,
+                    useWorkspaceInPromotion: false,
+                    verbose: false
+                )])
             }
         }
         stage('Run Tests') {
-    steps {
-        script {
-            echo 'Running tests...'
-            sh 'mkdir -p tests'  // Assicurati che la directory tests esista
-            sh 'vendor/bin/phpunit --log-junit tests/junit-report.xml --verbose'  // Esegui PHPUnit con debug
-            sh 'ls -al tests'  // Verifica la presenza del report XML
-            sh 'cat tests/junit-report.xml || echo "Report file not found"'  // Mostra il contenuto del report XML
-        }
-    }
-}
-
-        stage('Debug Report') {
             steps {
-                script {
-                    echo 'Debugging report...'
-                    sh 'ls -al tests'  // Mostra i file nella directory tests
-                    sh 'cat tests/junit-report.xml || echo "Report file not found"'  // Mostra il contenuto del report XML
-                }
+                sshPublisher(publishers: [sshPublisherDesc(
+                    configName: 'php_server',
+                    transfers: [sshTransfer(
+                        cleanRemote: false,
+                        excludes: '',
+                        execCommand: '''
+                            mkdir -p tests
+                            vendor/bin/phpunit --log-junit tests/junit-report.xml --verbose
+                            ls -al tests
+                            cat tests/junit-report.xml || echo "Report file not found"
+                        ''',
+                        execTimeout: 120000,
+                        flatten: false,
+                        makeEmptyDirs: false,
+                        noDefaultExcludes: false,
+                        patternSeparator: '[, ]+',
+                        remoteDirectory: '/path/to/your/project',  // Cambia questo percorso se necessario
+                        remoteDirectorySDF: false,
+                        removePrefix: '',
+                        sourceFiles: ''
+                    )],
+                    usePromotionTimestamp: false,
+                    useWorkspaceInPromotion: false,
+                    verbose: false
+                )])
+            }
+        }
+        stage('Transfer Test Report') {
+            steps {
+                sshPublisher(publishers: [sshPublisherDesc(
+                    configName: 'php_server',
+                    transfers: [sshTransfer(
+                        cleanRemote: false,
+                        excludes: '',
+                        execCommand: '',
+                        execTimeout: 120000,
+                        flatten: false,
+                        makeEmptyDirs: false,
+                        noDefaultExcludes: false,
+                        patternSeparator: '[, ]+',
+                        remoteDirectory: '/path/to/your/project/tests',
+                        remoteDirectorySDF: false,
+                        removePrefix: '',
+                        sourceFiles: 'tests/junit-report.xml',
+                        remoteFileName: 'junit-report.xml'  // Nome del file di report
+                    )],
+                    usePromotionTimestamp: false,
+                    useWorkspaceInPromotion: false,
+                    verbose: false
+                )])
             }
         }
         stage('Deploy PHP application') {
@@ -64,7 +191,7 @@ pipeline {
         always {
             script {
                 echo 'Publishing test results...'
-                junit 'tests/junit-report.xml'  // Pubblica i risultati dei test
+                junit '**/junit-report.xml'  // Pubblica i risultati dei test
             }
         }
         success {
@@ -75,3 +202,4 @@ pipeline {
         }
     }
 }
+
