@@ -90,7 +90,29 @@ pipeline {
                 sshagent(['php_server']) {
                     sh '''
                         echo "Installing dependencies..."
-                        ssh -o StrictHostKeyChecking=no utente@10.1.3.189 "cd /www/wwwroot/testrepo && composer install"
+                        ssh -o StrictHostKeyChecking=no utente@10.1.3.189 "
+                        cd /www/wwwroot/testrepo &&
+                        composer install
+                        "
+                    '''
+                }
+            }
+        }
+        stage('Verify PHPUnit Installation') {
+            steps {
+                sshagent(['php_server']) {
+                    sh '''
+                        echo "Verifying PHPUnit installation..."
+                        ssh -o StrictHostKeyChecking=no utente@10.1.3.189 "
+                        cd /www/wwwroot/testrepo &&
+                        if [ -f vendor/bin/phpunit ]; then
+                            echo 'PHPUnit is installed.';
+                            vendor/bin/phpunit --version;
+                        else
+                            echo 'PHPUnit is not installed.';
+                            exit 1;
+                        fi
+                        "
                     '''
                 }
             }
@@ -105,12 +127,27 @@ pipeline {
                         mkdir -p tests &&
                         vendor/bin/phpunit --log-junit tests/junit-report.xml --verbose
                         "
-
+                    '''
+                }
+            }
+        }
+        stage('Check Test Report') {
+            steps {
+                sshagent(['php_server']) {
+                    sh '''
                         echo "Checking if test report exists..."
                         ssh -o StrictHostKeyChecking=no utente@10.1.3.189 "
-                        ls -ld /www/wwwroot/testrepo/tests &&
-                        ls -al /www/wwwroot/testrepo/tests &&
-                        cat /www/wwwroot/testrepo/tests/junit-report.xml || echo 'Report file not found'
+                        if [ -f /www/wwwroot/testrepo/tests/junit-report.xml ]; then
+                            echo 'Test report found.';
+                        else
+                            echo 'Test report not found.';
+                            exit 1;
+                        fi
+                        "
+
+                        ssh -o StrictHostKeyChecking=no utente@10.1.3.189 "
+                        echo 'Listing contents of tests directory on the remote server:'
+                        ls -al /www/wwwroot/testrepo/tests
                         "
                     '''
                 }
@@ -121,6 +158,7 @@ pipeline {
                 sh '''
                     echo "Transferring test report..."
                     scp -o StrictHostKeyChecking=no utente@10.1.3.189:/www/wwwroot/testrepo/tests/junit-report.xml tests/ &&
+                    echo "Listing contents of local tests directory:"
                     ls -al tests/
                 '''
             }
@@ -136,7 +174,7 @@ pipeline {
             }
         }
     }
-    
+
     post {
         always {
             script {
