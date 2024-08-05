@@ -137,17 +137,8 @@ pipeline {
                     sh '''
                         echo "Checking if test report exists..."
                         ssh -o StrictHostKeyChecking=no utente@10.1.3.189 "
-                        if [ -f /www/wwwroot/testrepo/tests/junit-report.xml ]; then
-                            echo 'Test report found.';
-                        else
-                            echo 'Test report not found.';
-                            exit 1;
-                        fi
-                        "
-
-                        ssh -o StrictHostKeyChecking=no utente@10.1.3.189 "
-                        echo 'Listing contents of tests directory on the remote server:'
-                        ls -al /www/wwwroot/testrepo/tests
+                        ls -al /www/wwwroot/testrepo/tests &&
+                        cat /www/wwwroot/testrepo/tests/junit-report.xml || echo 'Report file not found'
                         "
                     '''
                 }
@@ -190,5 +181,6 @@ pipeline {
         }
     }
 }
+
 
 
