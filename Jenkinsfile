@@ -97,7 +97,7 @@ pipeline {
                         makeEmptyDirs: false,
                         noDefaultExcludes: false,
                         patternSeparator: '[, ]+',
-                        remoteDirectory: '/path/to/your/project',  // Cambia questo percorso se necessario
+                        remoteDirectory: '/www/wwwroot/testrepo',  // Cambia questo percorso se necessario
                         remoteDirectorySDF: false,
                         removePrefix: '',
                         sourceFiles: ''
@@ -126,7 +126,7 @@ pipeline {
                         makeEmptyDirs: false,
                         noDefaultExcludes: false,
                         patternSeparator: '[, ]+',
-                        remoteDirectory: '/path/to/your/project',  // Cambia questo percorso se necessario
+                        remoteDirectory: '/www/wwwroot/testrepo',  // Cambia questo percorso se necessario
                         remoteDirectorySDF: false,
                         removePrefix: '',
                         sourceFiles: ''
@@ -150,7 +150,7 @@ pipeline {
                         makeEmptyDirs: false,
                         noDefaultExcludes: false,
                         patternSeparator: '[, ]+',
-                        remoteDirectory: '/path/to/your/project/tests',
+                        remoteDirectory: '/www/wwwroot/testrepo',
                         remoteDirectorySDF: false,
                         removePrefix: '',
                         sourceFiles: 'tests/junit-report.xml',
