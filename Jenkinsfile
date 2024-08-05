@@ -78,6 +78,7 @@
 
 pipeline {
     agent any
+
     stages {
         stage('Checkout') {
             steps {
@@ -86,112 +87,52 @@ pipeline {
         }
         stage('Install Dependencies') {
             steps {
-                sshPublisher(publishers: [sshPublisherDesc(
-                    configName: 'php_server',
-                    transfers: [sshTransfer(
-                        cleanRemote: false,
-                        excludes: '',
-                        execCommand: 'composer install',
-                        execTimeout: 120000,
-                        flatten: false,
-                        makeEmptyDirs: false,
-                        noDefaultExcludes: false,
-                        patternSeparator: '[, ]+',
-                        remoteDirectory: '/www/wwwroot/testrepo',  // Cambia questo percorso se necessario
-                        remoteDirectorySDF: false,
-                        removePrefix: '',
-                        sourceFiles: ''
-                    )],
-                    usePromotionTimestamp: false,
-                    useWorkspaceInPromotion: false,
-                    verbose: false
-                )])
+                sshagent(['php_server']) {
+                    sh '''
+                        ssh -o StrictHostKeyChecking=no utente "cd /www/wwwroot/testrepo && composer install"
+                    '''
+                }
             }
         }
         stage('Run Tests') {
             steps {
-                sshPublisher(publishers: [sshPublisherDesc(
-                    configName: 'php_server',
-                    transfers: [sshTransfer(
-                        cleanRemote: false,
-                        excludes: '',
-                        execCommand: '''
-                            mkdir -p tests
-                            vendor/bin/phpunit --log-junit tests/junit-report.xml --verbose
-                            ls -al tests
-                            cat tests/junit-report.xml || echo "Report file not found"
-                        ''',
-                        execTimeout: 120000,
-                        flatten: false,
-                        makeEmptyDirs: false,
-                        noDefaultExcludes: false,
-                        patternSeparator: '[, ]+',
-                        remoteDirectory: '/www/wwwroot/testrepo',  // Cambia questo percorso se necessario
-                        remoteDirectorySDF: false,
-                        removePrefix: '',
-                        sourceFiles: ''
-                    )],
-                    usePromotionTimestamp: false,
-                    useWorkspaceInPromotion: false,
-                    verbose: false
-                )])
+                sshagent(['php_server']) {
+                    sh '''
+                        ssh -o StrictHostKeyChecking=no utente "
+                        cd /www/wwwroot/testrepo &&
+                        mkdir -p tests &&
+                        vendor/bin/phpunit --log-junit tests/junit-report.xml --verbose &&
+                        ls -al tests &&
+                        cat tests/junit-report.xml || echo 'Report file not found'
+                        "
+                    '''
+                }
             }
         }
         stage('Transfer Test Report') {
             steps {
-                sshPublisher(publishers: [sshPublisherDesc(
-                    configName: 'php_server',
-                    transfers: [sshTransfer(
-                        cleanRemote: false,
-                        excludes: '',
-                        execCommand: '',
-                        execTimeout: 120000,
-                        flatten: false,
-                        makeEmptyDirs: false,
-                        noDefaultExcludes: false,
-                        patternSeparator: '[, ]+',
-                        remoteDirectory: '/www/wwwroot/testrepo',
-                        remoteDirectorySDF: false,
-                        removePrefix: '',
-                        sourceFiles: 'tests/junit-report.xml',
-                        remoteFileName: 'junit-report.xml'  // Nome del file di report
-                    )],
-                    usePromotionTimestamp: false,
-                    useWorkspaceInPromotion: false,
-                    verbose: false
-                )])
+                // Se il report è già sulla macchina Jenkins
+                // scp -o StrictHostKeyChecking=no user@remote_host:/www/wwwroot/testrepo/tests/junit-report.xml tests/
+
+                // Altrimenti, usa un altro metodo per ottenere il report se necessario
             }
         }
         stage('Deploy PHP application') {
             steps {
-                sshPublisher(publishers: [sshPublisherDesc(
-                    configName: 'php_server',
-                    transfers: [sshTransfer(
-                        cleanRemote: false,
-                        excludes: '',
-                        execCommand: '',
-                        execTimeout: 120000,
-                        flatten: false,
-                        makeEmptyDirs: false,
-                        noDefaultExcludes: false,
-                        patternSeparator: '[, ]+',
-                        remoteDirectory: '/www/wwwroot/testrepo',
-                        remoteDirectorySDF: false,
-                        removePrefix: '',
-                        sourceFiles: '**/*.php'
-                    )],
-                    usePromotionTimestamp: false,
-                    useWorkspaceInPromotion: false,
-                    verbose: false
-                )])
+                sshagent(['php_server']) {
+                    sh '''
+                        ssh -o StrictHostKeyChecking=no utente "cd /www/wwwroot/testrepo && rsync -avz --exclude='*.git' . /www/wwwroot/testrepo"
+                    '''
+                }
             }
         }
     }
+    
     post {
         always {
             script {
                 echo 'Publishing test results...'
-                junit '**/junit-report.xml'  // Pubblica i risultati dei test
+                junit '**/tests/junit-report.xml'  // Pubblica i risultati dei test
             }
         }
         success {
