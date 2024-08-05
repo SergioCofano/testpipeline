@@ -140,9 +140,8 @@ pipeline {
                         ssh -o StrictHostKeyChecking=no utente@10.1.3.189 "
                         cd /www/wwwroot/testrepo &&
                         ls -al tests &&
-                        ls -al /www/wwwroot/testrepo/tests &&
-                        if [ -f /www/wwwroot/testrepo/tests/junit-report.xml ]; then
-                            cat /www/wwwroot/testrepo/tests/junit-report.xml;
+                        if [ -f tests/junit-report.xml ]; then
+                            cat tests/junit-report.xml;
                         else
                             echo 'Report file not found';
                         fi
@@ -188,6 +187,4 @@ pipeline {
         }
     }
 }
-
-
 
