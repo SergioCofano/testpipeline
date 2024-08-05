@@ -15,14 +15,17 @@ pipeline {
             }
         }
         stage('Run Tests') {
-            steps {
-                script {
-                    echo 'Running tests...'
-                    sh 'mkdir -p tests'  // Assicurati che la directory tests esista
-                    sh 'vendor/bin/phpunit --log-junit tests/junit-report.xml --verbose'  // Esegui PHPUnit con debug
-                }
-            }
+    steps {
+        script {
+            echo 'Running tests...'
+            sh 'mkdir -p tests'  // Assicurati che la directory tests esista
+            sh 'vendor/bin/phpunit --log-junit tests/junit-report.xml --verbose'  // Esegui PHPUnit con debug
+            sh 'ls -al tests'  // Verifica la presenza del report XML
+            sh 'cat tests/junit-report.xml || echo "Report file not found"'  // Mostra il contenuto del report XML
         }
+    }
+}
+
         stage('Debug Report') {
             steps {
                 script {
