@@ -18,7 +18,8 @@ pipeline {
             steps {
                 script {
                     echo 'Running tests...'
-                    sh 'vendor/bin/phpunit --log-junit tests/junit-report.xml'  // Aggiorna il percorso del report
+                    sh 'mkdir -p tests'  // Assicurati che la directory tests esista
+                    sh 'vendor/bin/phpunit --log-junit tests/junit-report.xml --debug'  // Esegui PHPUnit con debug
                 }
             }
         }
@@ -26,8 +27,8 @@ pipeline {
             steps {
                 script {
                     echo 'Debugging report...'
-                    sh 'ls -al tests'  // Mostra i file nella cartella tests per confermare la presenza del report
-                    sh 'cat tests/junit-report.xml'  // Mostra il contenuto del report XML per la verifica
+                    sh 'ls -al tests'  // Mostra i file nella directory tests
+                    sh 'cat tests/junit-report.xml || echo "Report file not found"'  // Mostra il contenuto del report XML
                 }
             }
         }
@@ -58,8 +59,10 @@ pipeline {
     }
     post {
         always {
-            echo 'Publishing test results...'
-            junit 'tests/junit-report.xml'  // Aggiorna il percorso del report
+            script {
+                echo 'Publishing test results...'
+                junit 'tests/junit-report.xml'  // Pubblica i risultati dei test
+            }
         }
         success {
             echo 'Deployment completed successfully.'
