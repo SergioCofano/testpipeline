@@ -89,7 +89,7 @@ pipeline {
             steps {
                 sshagent(['php_server']) {
                     sh '''
-                        ssh -o StrictHostKeyChecking=no utente@remote_host "cd /www/wwwroot/testrepo && composer install"
+                        ssh -o StrictHostKeyChecking=no utente@10.1.3.189 "cd /www/wwwroot/testrepo && composer install"
                     '''
                 }
             }
@@ -98,7 +98,7 @@ pipeline {
             steps {
                 sshagent(['php_server']) {
                     sh '''
-                        ssh -o StrictHostKeyChecking=no utente@remote_host "
+                        ssh -o StrictHostKeyChecking=no utente@10.1.3.189 "
                         cd /www/wwwroot/testrepo &&
                         mkdir -p tests &&
                         vendor/bin/phpunit --log-junit tests/junit-report.xml --verbose &&
@@ -112,7 +112,7 @@ pipeline {
         stage('Transfer Test Report') {
             steps {
                 sh '''
-                    scp -o StrictHostKeyChecking=no utente@remote_host:/www/wwwroot/testrepo/tests/junit-report.xml tests/
+                    scp -o StrictHostKeyChecking=no utente@10.1.3.189:/www/wwwroot/testrepo/tests/junit-report.xml tests/
                 '''
             }
         }
@@ -120,7 +120,7 @@ pipeline {
             steps {
                 sshagent(['php_server']) {
                     sh '''
-                        ssh -o StrictHostKeyChecking=no utente@remote_host "cd /www/wwwroot/testrepo && rsync -avz --exclude='*.git' . /www/wwwroot/testrepo"
+                        ssh -o StrictHostKeyChecking=no utente@10.1.3.189 "cd /www/wwwroot/testrepo && rsync -avz --exclude='*.git' . /www/wwwroot/testrepo"
                     '''
                 }
             }
