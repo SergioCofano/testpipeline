@@ -125,7 +125,8 @@ pipeline {
                         ssh -o StrictHostKeyChecking=no utente@10.1.3.189 "
                         cd /www/wwwroot/testrepo &&
                         mkdir -p tests &&
-                        vendor/bin/phpunit --log-junit tests/junit-report.xml --verbose
+                        vendor/bin/phpunit --log-junit tests/junit-report.xml --verbose > phpunit-output.log 2>&1 &&
+                        cat phpunit-output.log
                         "
                     '''
                 }
@@ -137,8 +138,14 @@ pipeline {
                     sh '''
                         echo "Checking if test report exists..."
                         ssh -o StrictHostKeyChecking=no utente@10.1.3.189 "
+                        cd /www/wwwroot/testrepo &&
+                        ls -al tests &&
                         ls -al /www/wwwroot/testrepo/tests &&
-                        cat /www/wwwroot/testrepo/tests/junit-report.xml || echo 'Report file not found'
+                        if [ -f /www/wwwroot/testrepo/tests/junit-report.xml ]; then
+                            cat /www/wwwroot/testrepo/tests/junit-report.xml;
+                        else
+                            echo 'Report file not found';
+                        fi
                         "
                     '''
                 }
