@@ -89,6 +89,7 @@ pipeline {
             steps {
                 sshagent(['php_server']) {
                     sh '''
+                        echo "Installing dependencies..."
                         ssh -o StrictHostKeyChecking=no utente@10.1.3.189 "cd /www/wwwroot/testrepo && composer install"
                     '''
                 }
@@ -98,12 +99,18 @@ pipeline {
             steps {
                 sshagent(['php_server']) {
                     sh '''
+                        echo "Running tests..."
                         ssh -o StrictHostKeyChecking=no utente@10.1.3.189 "
                         cd /www/wwwroot/testrepo &&
                         mkdir -p tests &&
-                        vendor/bin/phpunit --log-junit tests/junit-report.xml --verbose &&
-                        ls -al tests &&
-                        cat tests/junit-report.xml || echo 'Report file not found'
+                        vendor/bin/phpunit --log-junit tests/junit-report.xml --verbose
+                        "
+
+                        echo "Checking if test report exists..."
+                        ssh -o StrictHostKeyChecking=no utente@10.1.3.189 "
+                        ls -ld /www/wwwroot/testrepo/tests &&
+                        ls -al /www/wwwroot/testrepo/tests &&
+                        cat /www/wwwroot/testrepo/tests/junit-report.xml || echo 'Report file not found'
                         "
                     '''
                 }
@@ -112,7 +119,9 @@ pipeline {
         stage('Transfer Test Report') {
             steps {
                 sh '''
-                    scp -o StrictHostKeyChecking=no utente@10.1.3.189:/www/wwwroot/testrepo/tests/junit-report.xml tests/
+                    echo "Transferring test report..."
+                    scp -o StrictHostKeyChecking=no utente@10.1.3.189:/www/wwwroot/testrepo/tests/junit-report.xml tests/ &&
+                    ls -al tests/
                 '''
             }
         }
@@ -120,6 +129,7 @@ pipeline {
             steps {
                 sshagent(['php_server']) {
                     sh '''
+                        echo "Deploying application..."
                         ssh -o StrictHostKeyChecking=no utente@10.1.3.189 "cd /www/wwwroot/testrepo && rsync -avz --exclude='*.git' . /www/wwwroot/testrepo"
                     '''
                 }
@@ -142,4 +152,5 @@ pipeline {
         }
     }
 }
+
 
