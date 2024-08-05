@@ -19,7 +19,7 @@ pipeline {
                 script {
                     echo 'Running tests...'
                     sh 'mkdir -p tests'  // Assicurati che la directory tests esista
-                    sh 'vendor/bin/phpunit --log-junit tests/junit-report.xml --debug'  // Esegui PHPUnit con debug
+                    sh 'vendor/bin/phpunit --log-junit tests/junit-report.xml --verbose'  // Esegui PHPUnit con debug
                 }
             }
         }
