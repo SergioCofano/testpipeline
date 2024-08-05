@@ -112,7 +112,7 @@ pipeline {
         stage('Transfer Test Report') {
             steps {
                 // Se il report è già sulla macchina Jenkins
-                // scp -o StrictHostKeyChecking=no user@remote_host:/www/wwwroot/testrepo/tests/junit-report.xml tests/
+                scp -o StrictHostKeyChecking=no utente "cd /www/wwwroot/testrepo/tests/junit-report.xml tests/"
 
                 // Altrimenti, usa un altro metodo per ottenere il report se necessario
             }
