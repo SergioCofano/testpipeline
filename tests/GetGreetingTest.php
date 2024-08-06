@@ -5,7 +5,7 @@ class GetGreetingTest extends TestCase
     public function testGetGreeting()
     {
         include 'index.php'; // Assicurati che il file index.php sia incluso
-        $this->assertEquals("Hello world from PHP!", getGreeting());
+        $this->assertEquals("Hello universe from PHP!", getGreeting());
     }
 }
 ?>
